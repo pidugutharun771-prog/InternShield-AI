@@ -20,8 +20,8 @@ import {
 
 import "./styles.css";
 
-const API = "http://localhost:8081/api";
-const HEALTH_API = "http://localhost:8081/actuator/health";
+const API = "https://internshield-ai-0pzs.onrender.com/api";
+const HEALTH_API = "https://internshield-ai-0pzs.onrender.com/actuator/health";
 const CompanyVerificationPage = ({companyName,
   setCompanyName,
   companyWebsite,
@@ -75,7 +75,7 @@ const CompanyVerificationPage = ({companyName,
 
         <div>
           <small>API</small>
-          <strong>8081</strong>
+          <strong>RENDER</strong>
         </div>
       </section>
 

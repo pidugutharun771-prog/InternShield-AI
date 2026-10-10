@@ -53,7 +53,9 @@ public class SecurityConfig {
             new CorsConfiguration();
 
         configuration.setAllowedOrigins(
-            List.of("http://localhost:5173")
+            List.of("http://localhost:5173",
+                "https://internshield-frontend-ygy9.onrender.com"
+            )
         );
 
         configuration.setAllowedMethods(

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/company")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173","https://internshield-frontend-ygy9.onrender.com"})
 public class CompanyVerificationController {
 
     private final CompanyVerificationService companyVerificationService;
