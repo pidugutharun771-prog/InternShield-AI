@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: internshield-postgres
+    environment:
+      POSTGRES_DB: internshield
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    volumes: ["internshield_data:/var/lib/postgresql/data"]
+volumes:
+  internshield_data:
