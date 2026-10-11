@@ -21,8 +21,15 @@ import {
 import "./styles.css";
 
 const API = "https://internshield-ai-0pzs.onrender.com/api";
-const HEALTH_API = "https://internshield-ai-0pzs.onrender.com/actuator/health";
-const CompanyVerificationPage = ({companyName,
+const HEALTH_API =
+  "https://internshield-ai-0pzs.onrender.com/actuator/health";
+
+/* =========================================================
+   COMPANY VERIFICATION PAGE
+========================================================= */
+
+const CompanyVerificationPage = ({
+  companyName,
   setCompanyName,
   companyWebsite,
   setCompanyWebsite,
@@ -32,7 +39,8 @@ const CompanyVerificationPage = ({companyName,
   companyLoading,
   companyError,
   verifyCompany,
-  systemStatus}) => {
+  systemStatus,
+}) => {
   const status = companyResult?.verificationStatus || "READY";
 
   return (
@@ -80,17 +88,13 @@ const CompanyVerificationPage = ({companyName,
       </section>
 
       <div className="grid">
-
         {/* INPUT PANEL */}
 
         <section className="panel">
           <h2>Verify a company</h2>
 
           <form onSubmit={verifyCompany}>
-
-            <label>
-              Company name
-            </label>
+            <label>Company name</label>
 
             <div className="input">
               <Building2 size={17} />
@@ -103,9 +107,7 @@ const CompanyVerificationPage = ({companyName,
               />
             </div>
 
-            <label>
-              Company website
-            </label>
+            <label>Company website</label>
 
             <div className="input">
               <Link size={17} />
@@ -118,9 +120,7 @@ const CompanyVerificationPage = ({companyName,
               />
             </div>
 
-            <label>
-              Recruiter email
-            </label>
+            <label>Recruiter email</label>
 
             <div className="input">
               <Mail size={17} />
@@ -139,28 +139,21 @@ const CompanyVerificationPage = ({companyName,
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={companyLoading}
-            >
+            <button type="submit" disabled={companyLoading}>
               {companyLoading
                 ? "Verifying..."
                 : "Verify Company"}
             </button>
-
           </form>
         </section>
 
         {/* RESULT PANEL */}
 
         <section className="panel result">
-
           <h2>Verification Result</h2>
 
           {!companyResult ? (
-
             <div className="empty">
-
               <Building2 size={48} />
 
               <p>Company verification will appear here</p>
@@ -169,13 +162,9 @@ const CompanyVerificationPage = ({companyName,
                 InternShield compares the company name, website domain
                 and recruiter email to identify inconsistencies.
               </small>
-
             </div>
-
           ) : (
-
             <>
-
               <div
                 className={`risk ${
                   status === "VERIFIED"
@@ -185,7 +174,6 @@ const CompanyVerificationPage = ({companyName,
                     : "critical"
                 }`}
               >
-
                 <div>
                   <small>VERIFICATION STATUS</small>
 
@@ -198,13 +186,12 @@ const CompanyVerificationPage = ({companyName,
                   {companyResult.score}
                   <span>/100</span>
                 </div>
-
               </div>
 
               <div className="company-summary">
-
                 <div>
                   <small>COMPANY</small>
+
                   <strong>
                     {companyResult.companyName}
                   </strong>
@@ -212,6 +199,7 @@ const CompanyVerificationPage = ({companyName,
 
                 <div>
                   <small>WEBSITE DOMAIN</small>
+
                   <strong>
                     {companyResult.websiteDomain || "Unknown"}
                   </strong>
@@ -219,232 +207,751 @@ const CompanyVerificationPage = ({companyName,
 
                 <div>
                   <small>RECRUITER EMAIL</small>
+
                   <strong>
                     {companyResult.email}
                   </strong>
                 </div>
-
               </div>
 
               <h3>Verification findings</h3>
 
               {companyResult.findings?.length > 0 ? (
-
                 <ul>
-
                   {companyResult.findings.map(
                     (finding, index) => (
-
                       <li key={index}>
-
                         <AlertTriangle size={16} />
 
                         <span>{finding}</span>
-
                       </li>
-
                     )
                   )}
-
                 </ul>
-
               ) : (
-
                 <p className="muted">
                   No major company verification findings.
                 </p>
-
               )}
 
               <h3>What you should do</h3>
 
               <ul className="safe">
-
                 {companyResult.recommendations?.map(
                   (recommendation, index) => (
-
                     <li key={index}>
-
                       <ShieldCheck size={16} />
 
                       <span>{recommendation}</span>
-
                     </li>
-
                   )
                 )}
-
               </ul>
-
             </>
-
           )}
-
         </section>
-
       </div>
 
       <section className="panel">
-
         <h2>Verification checks performed</h2>
 
         <div className="url-check-grid">
-
           <div>🔒 HTTPS website</div>
-
           <div>📧 Recruiter email domain</div>
-
           <div>🏢 Company name</div>
-
           <div>🌐 Website domain</div>
-
           <div>🔗 Email ↔ website match</div>
-
           <div>⚠️ Public email provider</div>
-
           <div>🏷️ Domain structure</div>
-
           <div>🛡️ Verification score</div>
-
         </div>
-
       </section>
     </>
   );
 };
 
-function App() {
-  const [activePage, setActivePage] = useState("analyzer");
+/* =========================================================
+   ANALYZER PAGE
 
-  // =========================================================
-  // INTERNSHIP ANALYZER STATE
-  // =========================================================
+   IMPORTANT:
+   Input state is LOCAL to this component.
+   This prevents the whole App from rerendering on every
+   keystroke and fixes the focus-loss problem.
+========================================================= */
 
+const AnalyzerPage = ({
+  result,
+  history,
+  counts,
+  loading,
+  error,
+  analyze,
+  systemStatus,
+  setActivePage,
+}) => {
   const [text, setText] = useState("");
   const [email, setEmail] = useState("");
-  const [result, setResult] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  // =========================================================
-  // URL ANALYZER STATE
-  // =========================================================
+  const riskLevel = result?.riskLevel || "READY";
 
-  const [url, setUrl] = useState("");
-  const [urlEmail, setUrlEmail] = useState("");
-  const [urlResult, setUrlResult] = useState(null);
-  const [urlLoading, setUrlLoading] = useState(false);
-  const [urlError, setUrlError] = useState("");
-  // =========================================================
-// COMPANY VERIFICATION STATE
-// =========================================================
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-const [companyName, setCompanyName] = useState("");
-const [companyWebsite, setCompanyWebsite] = useState("");
-const [companyEmail, setCompanyEmail] = useState("");
+    analyze(text, email);
+  };
 
-const [companyResult, setCompanyResult] = useState(null);
-const [companyLoading, setCompanyLoading] = useState(false);
-const [companyError, setCompanyError] = useState("");
+  return (
+    <>
+      <header>
+        <div>
+          <p className="eyebrow">INTERNSHIP SECURITY</p>
 
-const [analytics, setAnalytics] = useState(null);
-const [analyticsLoading, setAnalyticsLoading] = useState(false);
-const [analyticsError, setAnalyticsError] = useState("");
-const loadAnalytics = async () => {
-  try {
-    setAnalyticsLoading(true);
-    setAnalyticsError("");
+          <h1>Offer Risk Analyzer</h1>
 
-    const response = await fetch(`${API}/analytics`);
+          <p className="sub">
+            Paste an internship message and get an explainable risk
+            assessment.
+          </p>
+        </div>
 
-    if (!response.ok) {
-      throw new Error("Failed to load analytics");
-    }
+        <div
+          className={`status ${
+            systemStatus === "Backend offline" ? "offline" : ""
+          }`}
+        >
+          <span></span>
 
-    const data = await response.json();
-    setAnalytics(data);
+          {systemStatus === "Backend offline"
+            ? "API Offline"
+            : "API Online"}
+        </div>
+      </header>
 
-  } catch (error) {
-    setAnalyticsError(error.message);
-  } finally {
-    setAnalyticsLoading(false);
-  }
+      <section className="stats">
+        <div>
+          <small>ANALYSES</small>
+          <strong>{history.length}</strong>
+        </div>
+
+        <div>
+          <small>LOW RISK</small>
+          <strong>{counts.LOW}</strong>
+        </div>
+
+        <div>
+          <small>HIGH + CRITICAL</small>
+          <strong>
+            {counts.HIGH + counts.CRITICAL}
+          </strong>
+        </div>
+      </section>
+
+      <div className="grid">
+        <section className="panel">
+          <h2>Analyze an offer</h2>
+
+          <form onSubmit={handleSubmit}>
+            <label>
+              Recruiter email <span>optional</span>
+            </label>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="hr@company.com"
+            />
+
+            <label>Internship message</label>
+
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Paste the complete internship offer, WhatsApp message, email or job description here..."
+            />
+
+            {error && (
+              <div className="error-message">
+                ⚠️ {error}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading}>
+              {loading
+                ? "Analyzing..."
+                : "Analyze with InternShield AI"}
+            </button>
+          </form>
+        </section>
+
+        <section className="panel result">
+          <h2>Assessment</h2>
+
+          {!result ? (
+            <div className="empty">
+              <ShieldCheck size={48} />
+
+              <p>Your result will appear here</p>
+
+              <small>
+                We check payment requests, urgency, suspicious
+                channels, public email domains and sensitive-data
+                requests.
+              </small>
+            </div>
+          ) : (
+            <>
+              <div
+                className={`risk ${riskLevel.toLowerCase()}`}
+              >
+                <div>
+                  <small>RISK LEVEL</small>
+
+                  <strong>{riskLevel}</strong>
+                </div>
+
+                <div className="score">
+                  {result.score}
+                  <span>/100</span>
+                </div>
+              </div>
+
+              <h3>Why this score?</h3>
+
+              {result.indicators &&
+              result.indicators.length > 0 ? (
+                <ul>
+                  {result.indicators.map(
+                    (indicator, index) => (
+                      <li key={index}>
+                        <AlertTriangle size={16} />
+
+                        <span>{indicator}</span>
+                      </li>
+                    )
+                  )}
+                </ul>
+              ) : (
+                <p className="muted">
+                  No major configured scam signals were
+                  detected; this does not prove the offer is
+                  legitimate.
+                </p>
+              )}
+
+              <h3>What you should do</h3>
+
+              <ul className="safe">
+                {result.recommendations?.map(
+                  (recommendation, index) => (
+                    <li key={index}>
+                      <ShieldCheck size={16} />
+
+                      <span>{recommendation}</span>
+                    </li>
+                  )
+                )}
+              </ul>
+            </>
+          )}
+        </section>
+      </div>
+
+      <section className="panel">
+        <div className="section-heading">
+          <h2>Recent analyses</h2>
+
+          <button
+            className="small-button"
+            type="button"
+            onClick={() => setActivePage("history")}
+          >
+            View all
+          </button>
+        </div>
+
+        <div className="history">
+          {history.length === 0 ? (
+            <p className="muted">
+              No analyses yet.
+            </p>
+          ) : (
+            history.slice(0, 5).map((item) => (
+              <div
+                className="row"
+                key={item.id}
+              >
+                <span
+                  className={`dot ${item.riskLevel.toLowerCase()}`}
+                ></span>
+
+                <b>{item.riskLevel}</b>
+
+                <span>{item.score}/100</span>
+
+                <small>
+                  {new Date(
+                    item.createdAt
+                  ).toLocaleString()}
+                </small>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+    </>
+  );
 };
 
-  // =========================================================
-  // SYSTEM STATUS
-  // =========================================================
+/* =========================================================
+   URL SAFETY PAGE
 
-  const [systemStatus, setSystemStatus] = useState("Checking...");
-  const [checkingStatus, setCheckingStatus] = useState(false);
+   IMPORTANT:
+   Input state is LOCAL to this component as well.
+========================================================= */
 
-  // =========================================================
-  // LOAD ANALYSIS HISTORY
-  // =========================================================
+const UrlSafetyPage = ({
+  urlResult,
+  urlLoading,
+  urlError,
+  analyzeUrl,
+  systemStatus,
+}) => {
+  const [url, setUrl] = useState("");
+  const [urlEmail, setUrlEmail] = useState("");
+
+  const riskLevel =
+    urlResult?.riskLevel || "READY";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    analyzeUrl(url, urlEmail);
+  };
+
+  return (
+    <>
+      <header>
+        <div>
+          <p className="eyebrow">LINK SECURITY</p>
+
+          <h1>URL Safety Analyzer</h1>
+
+          <p className="sub">
+            Check an internship website or recruitment link
+            for suspicious URL patterns.
+          </p>
+        </div>
+
+        <div
+          className={`status ${
+            systemStatus === "Backend offline"
+              ? "offline"
+              : ""
+          }`}
+        >
+          <span></span>
+
+          {systemStatus === "Backend offline"
+            ? "API Offline"
+            : "API Online"}
+        </div>
+      </header>
+
+      <section className="stats">
+        <div>
+          <small>URL ENGINE</small>
+          <strong>ACTIVE</strong>
+        </div>
+
+        <div>
+          <small>CHECKS</small>
+          <strong>10+</strong>
+        </div>
+
+        <div>
+          <small>API</small>
+          <strong>8081</strong>
+        </div>
+      </section>
+
+      <div className="grid">
+        <section className="panel">
+          <h2>Analyze a URL</h2>
+
+          <form onSubmit={handleSubmit}>
+            <label>
+              Internship / recruitment URL
+            </label>
+
+            <div className="input">
+              <Link size={17} />
+
+              <input
+                type="text"
+                value={url}
+                onChange={(e) =>
+                  setUrl(e.target.value)
+                }
+                placeholder="https://company.com/internship"
+              />
+            </div>
+
+            <label>
+              Recruiter email <span>optional</span>
+            </label>
+
+            <div className="input">
+              <Mail size={17} />
+
+              <input
+                type="email"
+                value={urlEmail}
+                onChange={(e) =>
+                  setUrlEmail(e.target.value)
+                }
+                placeholder="hr@company.com"
+              />
+            </div>
+
+            {urlError && (
+              <div className="error-message">
+                ⚠️ {urlError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={urlLoading}
+            >
+              {urlLoading
+                ? "Checking URL..."
+                : "Analyze URL"}
+            </button>
+          </form>
+        </section>
+
+        <section className="panel result">
+          <h2>URL Assessment</h2>
+
+          {!urlResult ? (
+            <div className="empty">
+              <Link size={48} />
+
+              <p>
+                URL analysis will appear here
+              </p>
+
+              <small>
+                InternShield checks HTTPS, URL shorteners,
+                IP addresses, suspicious keywords, domains,
+                ports and other URL signals.
+              </small>
+            </div>
+          ) : (
+            <>
+              <div
+                className={`risk ${riskLevel.toLowerCase()}`}
+              >
+                <div>
+                  <small>RISK LEVEL</small>
+
+                  <strong>{riskLevel}</strong>
+                </div>
+
+                <div className="score">
+                  {urlResult.score}
+                  <span>/100</span>
+                </div>
+              </div>
+
+              <div className="url-display">
+                <ExternalLink size={15} />
+
+                <span>{urlResult.url}</span>
+              </div>
+
+              <div className="domain-display">
+                <small>DOMAIN</small>
+
+                <strong>
+                  {urlResult.domain || "Unknown"}
+                </strong>
+              </div>
+
+              <h3>Why this score?</h3>
+
+              {urlResult.indicators &&
+              urlResult.indicators.length > 0 ? (
+                <ul>
+                  {urlResult.indicators.map(
+                    (indicator, index) => (
+                      <li key={index}>
+                        <AlertTriangle size={16} />
+
+                        <span>{indicator}</span>
+                      </li>
+                    )
+                  )}
+                </ul>
+              ) : (
+                <p className="muted">
+                  No major URL risk signals were
+                  detected.
+                </p>
+              )}
+
+              <h3>What you should do</h3>
+
+              <ul className="safe">
+                {urlResult.recommendations?.map(
+                  (recommendation, index) => (
+                    <li key={index}>
+                      <ShieldCheck size={16} />
+
+                      <span>{recommendation}</span>
+                    </li>
+                  )
+                )}
+              </ul>
+            </>
+          )}
+        </section>
+      </div>
+
+      <section className="panel">
+        <h2>URL checks performed</h2>
+
+        <div className="url-check-grid">
+          <div>🔒 HTTPS security</div>
+          <div>🔗 URL shorteners</div>
+          <div>🌐 IP-based URLs</div>
+          <div>⚠️ Suspicious keywords</div>
+          <div>🏷️ Domain structure</div>
+          <div>🚪 Non-standard ports</div>
+          <div>📧 Email-domain comparison</div>
+          <div>📦 Suspicious file types</div>
+        </div>
+      </section>
+    </>
+  );
+};
+
+/* =========================================================
+   APP
+========================================================= */
+
+function App() {
+  const [activePage, setActivePage] =
+    useState("analyzer");
+
+  /* =======================================================
+     COMPANY VERIFICATION STATE
+  ======================================================= */
+
+  const [companyName, setCompanyName] =
+    useState("");
+
+  const [companyWebsite, setCompanyWebsite] =
+    useState("");
+
+  const [companyEmail, setCompanyEmail] =
+    useState("");
+
+  const [companyResult, setCompanyResult] =
+    useState(null);
+
+  const [companyLoading, setCompanyLoading] =
+    useState(false);
+
+  const [companyError, setCompanyError] =
+    useState("");
+
+  /* =======================================================
+     ANALYZER RESULT STATE
+  ======================================================= */
+
+  const [result, setResult] =
+    useState(null);
+
+  const [history, setHistory] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  /* =======================================================
+     URL ANALYZER RESULT STATE
+  ======================================================= */
+
+  const [urlResult, setUrlResult] =
+    useState(null);
+
+  const [urlLoading, setUrlLoading] =
+    useState(false);
+
+  const [urlError, setUrlError] =
+    useState("");
+
+  /* =======================================================
+     ANALYTICS STATE
+  ======================================================= */
+
+  const [analytics, setAnalytics] =
+    useState(null);
+
+  const [analyticsLoading, setAnalyticsLoading] =
+    useState(false);
+
+  const [analyticsError, setAnalyticsError] =
+    useState("");
+
+  /* =======================================================
+     SYSTEM STATUS
+  ======================================================= */
+
+  const [systemStatus, setSystemStatus] =
+    useState("Checking...");
+
+  const [checkingStatus, setCheckingStatus] =
+    useState(false);
+
+  /* =======================================================
+     LOAD HISTORY
+  ======================================================= */
 
   const loadHistory = async () => {
     try {
-      const response = await fetch(`${API}/analysis/recent`);
+      const response = await fetch(
+        `${API}/analysis/recent`
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to load history");
+        throw new Error(
+          "Failed to load history"
+        );
       }
 
       const data = await response.json();
+
       setHistory(data);
     } catch (err) {
-      console.error("History error:", err);
+      console.error(
+        "History error:",
+        err
+      );
     }
   };
 
-  // =========================================================
-  // CHECK BACKEND STATUS
-  // =========================================================
+  /* =======================================================
+     LOAD ANALYTICS
+  ======================================================= */
+
+  const loadAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true);
+      setAnalyticsError("");
+
+      const response = await fetch(
+        `${API}/analytics`
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Failed to load analytics"
+        );
+      }
+
+      const data = await response.json();
+
+      setAnalytics(data);
+    } catch (err) {
+      console.error(
+        "Analytics error:",
+        err
+      );
+
+      setAnalyticsError(
+        err.message
+      );
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
+  /* =======================================================
+     CHECK SYSTEM STATUS
+  ======================================================= */
 
   const checkSystemStatus = async () => {
     setCheckingStatus(true);
 
     try {
-      const response = await fetch(HEALTH_API);
+      const response = await fetch(
+        HEALTH_API
+      );
 
       if (!response.ok) {
-        throw new Error("Backend unavailable");
+        throw new Error(
+          "Backend unavailable"
+        );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       if (data.status === "UP") {
-        setSystemStatus("All systems operational");
+        setSystemStatus(
+          "All systems operational"
+        );
       } else {
-        setSystemStatus("Backend needs attention");
+        setSystemStatus(
+          "Backend needs attention"
+        );
       }
     } catch (err) {
-      console.error("System status error:", err);
-      setSystemStatus("Backend offline");
+      console.error(
+        "System status error:",
+        err
+      );
+
+      setSystemStatus(
+        "Backend offline"
+      );
     } finally {
       setCheckingStatus(false);
     }
   };
 
-  // =========================================================
-  // INITIAL LOAD
-  // =========================================================
+  /* =======================================================
+     INITIAL LOAD
+  ======================================================= */
 
   useEffect(() => {
     loadHistory();
     checkSystemStatus();
   }, []);
 
-  // =========================================================
-  // INTERNSHIP OFFER ANALYZER
-  // =========================================================
+  /* =======================================================
+     INTERNSHIP OFFER ANALYZER
+     
+     IMPORTANT:
+     This function now receives values from AnalyzerPage.
+     It does NOT control the input fields.
+  ======================================================= */
 
-  const analyze = async (e) => {
-    e.preventDefault();
-
+  const analyze = async (
+    text,
+    email
+  ) => {
     if (!text.trim()) {
-      setError("Please enter an internship offer or message.");
+      setError(
+        "Please enter an internship offer or message."
+      );
+
       return;
     }
 
@@ -453,28 +960,38 @@ const loadAnalytics = async () => {
     setResult(null);
 
     try {
-      const response = await fetch(`${API}/analysis`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: text,
-          email: email,
-        }),
-      });
+      const response =
+        await fetch(`${API}/analysis`, {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            content: text,
+            email: email,
+          }),
+        });
 
       if (!response.ok) {
-        throw new Error("Analysis request failed");
+        throw new Error(
+          "Analysis request failed"
+        );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       setResult(data);
 
       await loadHistory();
     } catch (err) {
-      console.error("Analysis error:", err);
+      console.error(
+        "Analysis error:",
+        err
+      );
 
       setError(
         "Unable to connect to InternShield AI. Make sure the backend is running."
@@ -484,15 +1001,23 @@ const loadAnalytics = async () => {
     }
   };
 
-  // =========================================================
-  // URL SAFETY ANALYZER
-  // =========================================================
+  /* =======================================================
+     URL SAFETY ANALYZER
+     
+     IMPORTANT:
+     This function now receives values from UrlSafetyPage.
+     It does NOT control the URL input fields.
+  ======================================================= */
 
-  const analyzeUrl = async (e) => {
-    e.preventDefault();
-
+  const analyzeUrl = async (
+    url,
+    urlEmail
+  ) => {
     if (!url.trim()) {
-      setUrlError("Please enter a URL.");
+      setUrlError(
+        "Please enter a URL."
+      );
+
       return;
     }
 
@@ -501,26 +1026,39 @@ const loadAnalytics = async () => {
     setUrlResult(null);
 
     try {
-      const response = await fetch(`${API}/url/analyze`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          url: url.trim(),
-          email: urlEmail.trim(),
-        }),
-      });
+      const response =
+        await fetch(
+          `${API}/url/analyze`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              url: url.trim(),
+              email: urlEmail.trim(),
+            }),
+          }
+        );
 
       if (!response.ok) {
-        throw new Error("URL analysis request failed");
+        throw new Error(
+          "URL analysis request failed"
+        );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       setUrlResult(data);
     } catch (err) {
-      console.error("URL analysis error:", err);
+      console.error(
+        "URL analysis error:",
+        err
+      );
 
       setUrlError(
         "Unable to analyze the URL. Make sure the backend is running."
@@ -529,77 +1067,116 @@ const loadAnalytics = async () => {
       setUrlLoading(false);
     }
   };
-  // =========================================================
-// COMPANY VERIFICATION
-// =========================================================
 
-const verifyCompany = async (e) => {
-  e.preventDefault();
+  /* =======================================================
+     COMPANY VERIFICATION
+  ======================================================= */
 
-  if (!companyName.trim()) {
-    setCompanyError("Please enter the company name.");
-    return;
-  }
+  const verifyCompany = async (e) => {
+    e.preventDefault();
 
-  if (!companyWebsite.trim()) {
-    setCompanyError("Please enter the company website.");
-    return;
-  }
+    if (!companyName.trim()) {
+      setCompanyError(
+        "Please enter the company name."
+      );
 
-  if (!companyEmail.trim()) {
-    setCompanyError("Please enter the recruiter email.");
-    return;
-  }
-
-  setCompanyLoading(true);
-  setCompanyError("");
-  setCompanyResult(null);
-
-  try {
-    const response = await fetch(`${API}/company/verify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        companyName: companyName.trim(),
-        website: companyWebsite.trim(),
-        email: companyEmail.trim(),
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error("Company verification request failed");
+      return;
     }
 
-    const data = await response.json();
+    if (!companyWebsite.trim()) {
+      setCompanyError(
+        "Please enter the company website."
+      );
 
-    setCompanyResult(data);
-  } catch (err) {
-    console.error("Company verification error:", err);
+      return;
+    }
 
-    setCompanyError(
-      "Unable to verify the company. Make sure the backend is running."
-    );
-  } finally {
-    setCompanyLoading(false);
-  }
-};
+    if (!companyEmail.trim()) {
+      setCompanyError(
+        "Please enter the recruiter email."
+      );
 
-  // =========================================================
-  // STATISTICS
-  // =========================================================
+      return;
+    }
 
-  const counts = {
-    LOW: history.filter((x) => x.riskLevel === "LOW").length,
-    MEDIUM: history.filter((x) => x.riskLevel === "MEDIUM").length,
-    HIGH: history.filter((x) => x.riskLevel === "HIGH").length,
-    CRITICAL: history.filter((x) => x.riskLevel === "CRITICAL").length,
+    setCompanyLoading(true);
+    setCompanyError("");
+    setCompanyResult(null);
+
+    try {
+      const response =
+        await fetch(
+          `${API}/company/verify`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              companyName:
+                companyName.trim(),
+
+              website:
+                companyWebsite.trim(),
+
+              email:
+                companyEmail.trim(),
+            }),
+          }
+        );
+
+      if (!response.ok) {
+        throw new Error(
+          "Company verification request failed"
+        );
+      }
+
+      const data =
+        await response.json();
+
+      setCompanyResult(data);
+    } catch (err) {
+      console.error(
+        "Company verification error:",
+        err
+      );
+
+      setCompanyError(
+        "Unable to verify the company. Make sure the backend is running."
+      );
+    } finally {
+      setCompanyLoading(false);
+    }
   };
 
-  // =========================================================
-  // SIDEBAR
-  // =========================================================
+  /* =======================================================
+     STATISTICS
+  ======================================================= */
+
+  const counts = {
+    LOW: history.filter(
+      (x) => x.riskLevel === "LOW"
+    ).length,
+
+    MEDIUM: history.filter(
+      (x) => x.riskLevel === "MEDIUM"
+    ).length,
+
+    HIGH: history.filter(
+      (x) => x.riskLevel === "HIGH"
+    ).length,
+
+    CRITICAL: history.filter(
+      (x) => x.riskLevel === "CRITICAL"
+    ).length,
+  };
+
+  /* =======================================================
+     SIDEBAR
+  ======================================================= */
 
   const Sidebar = () => (
     <aside>
@@ -610,38 +1187,66 @@ const verifyCompany = async (e) => {
 
         <div>
           <b>InternShield</b>
-          <small>AI Safety Platform</small>
+          <small>
+            AI Safety Platform
+          </small>
         </div>
       </div>
 
       <nav>
         <span
-          className={activePage === "analyzer" ? "active" : ""}
-          onClick={() => setActivePage("analyzer")}
+          className={
+            activePage === "analyzer"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActivePage("analyzer")
+          }
         >
           <Search />
           Analyzer
         </span>
 
         <span
-          className={activePage === "url" ? "active" : ""}
-          onClick={() => setActivePage("url")}
+          className={
+            activePage === "url"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActivePage("url")
+          }
         >
           <Link />
           URL Safety
         </span>
-                <span
-          className={activePage === "company" ? "active" : ""}
-          onClick={() => setActivePage("company")}
+
+        <span
+          className={
+            activePage === "company"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActivePage("company")
+          }
         >
           <Building2 />
           Company Verification
         </span>
 
         <span
-          className={activePage === "analytics" ? "active" : ""}
+          className={
+            activePage === "analytics"
+              ? "active"
+              : ""
+          }
           onClick={() => {
-            setActivePage("analytics");
+            setActivePage(
+              "analytics"
+            );
+
             loadAnalytics();
           }}
         >
@@ -650,17 +1255,28 @@ const verifyCompany = async (e) => {
         </span>
 
         <span
-          className={activePage === "history" ? "active" : ""}
-          onClick={() => setActivePage("history")}
+          className={
+            activePage === "history"
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            setActivePage("history")
+          }
         >
           <History />
           History
         </span>
 
         <span
-          className={activePage === "status" ? "active" : ""}
+          className={
+            activePage === "status"
+              ? "active"
+              : ""
+          }
           onClick={() => {
             setActivePage("status");
+
             checkSystemStatus();
           }}
         >
@@ -673,416 +1289,30 @@ const verifyCompany = async (e) => {
         <ShieldAlert />
 
         <p>
-          Protect yourself from fake internships, fee scams and credential
-          theft.
+          Protect yourself from fake internships,
+          fee scams and credential theft.
         </p>
       </div>
     </aside>
   );
 
-  // =========================================================
-  // ANALYZER PAGE
-  // =========================================================
-
-  const AnalyzerPage = () => {
-    const riskLevel = result?.riskLevel || "READY";
-
-    return (
-      <>
-        <header>
-          <div>
-            <p className="eyebrow">INTERNSHIP SECURITY</p>
-
-            <h1>Offer Risk Analyzer</h1>
-
-            <p className="sub">
-              Paste an internship message and get an explainable risk
-              assessment.
-            </p>
-          </div>
-
-          <div
-            className={`status ${
-              systemStatus === "Backend offline" ? "offline" : ""
-            }`}
-          >
-            <span></span>
-
-            {systemStatus === "Backend offline"
-              ? "API Offline"
-              : "API Online"}
-          </div>
-        </header>
-
-        <section className="stats">
-          <div>
-            <small>ANALYSES</small>
-            <strong>{history.length}</strong>
-          </div>
-
-          <div>
-            <small>LOW RISK</small>
-            <strong>{counts.LOW}</strong>
-          </div>
-
-          <div>
-            <small>HIGH + CRITICAL</small>
-            <strong>{counts.HIGH + counts.CRITICAL}</strong>
-          </div>
-        </section>
-
-        <div className="grid">
-          <section className="panel">
-            <h2>Analyze an offer</h2>
-
-            <form onSubmit={analyze}>
-              <label>
-                Recruiter email <span>optional</span>
-              </label>
-
-              <div className="input">
-                <Mail size={17} />
-
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="hr@company.com"
-                />
-              </div>
-
-              <label>Internship message</label>
-
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Paste the complete internship offer, WhatsApp message, email or job description here..."
-              />
-
-              {error && (
-                <div className="error-message">⚠️ {error}</div>
-              )}
-
-              <button type="submit" disabled={loading}>
-                {loading
-                  ? "Analyzing..."
-                  : "Analyze with InternShield AI"}
-              </button>
-            </form>
-          </section>
-
-          <section className="panel result">
-            <h2>Assessment</h2>
-
-            {!result ? (
-              <div className="empty">
-                <ShieldCheck size={48} />
-
-                <p>Your result will appear here</p>
-
-                <small>
-                  We check payment requests, urgency, suspicious channels,
-                  public email domains and sensitive-data requests.
-                </small>
-              </div>
-            ) : (
-              <>
-                <div className={`risk ${riskLevel.toLowerCase()}`}>
-                  <div>
-                    <small>RISK LEVEL</small>
-                    <strong>{riskLevel}</strong>
-                  </div>
-
-                  <div className="score">
-                    {result.score}
-                    <span>/100</span>
-                  </div>
-                </div>
-
-                <h3>Why this score?</h3>
-
-                {result.indicators &&
-                result.indicators.length > 0 ? (
-                  <ul>
-                    {result.indicators.map((indicator, index) => (
-                      <li key={index}>
-                        <AlertTriangle size={16} />
-                        <span>{indicator}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="muted">
-                    No major configured scam signals were detected; this does
-                    not prove the offer is legitimate.
-                  </p>
-                )}
-
-                <h3>What you should do</h3>
-
-                <ul className="safe">
-                  {result.recommendations?.map(
-                    (recommendation, index) => (
-                      <li key={index}>
-                        <ShieldCheck size={16} />
-                        <span>{recommendation}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </>
-            )}
-          </section>
-        </div>
-
-        <section className="panel">
-          <div className="section-heading">
-            <h2>Recent analyses</h2>
-
-            <button
-              className="small-button"
-              type="button"
-              onClick={() => setActivePage("history")}
-            >
-              View all
-            </button>
-          </div>
-
-          <div className="history">
-            {history.length === 0 ? (
-              <p className="muted">No analyses yet.</p>
-            ) : (
-              history.slice(0, 5).map((item) => (
-                <div className="row" key={item.id}>
-                  <span
-                    className={`dot ${item.riskLevel.toLowerCase()}`}
-                  ></span>
-
-                  <b>{item.riskLevel}</b>
-
-                  <span>{item.score}/100</span>
-
-                  <small>
-                    {new Date(item.createdAt).toLocaleString()}
-                  </small>
-                </div>
-              ))
-            )}
-          </div>
-        </section>
-      </>
-    );
-  };
-
-  // =========================================================
-  // URL SAFETY PAGE
-  // =========================================================
-
-  const UrlSafetyPage = () => {
-    const riskLevel = urlResult?.riskLevel || "READY";
-
-    return (
-      <>
-        <header>
-          <div>
-            <p className="eyebrow">LINK SECURITY</p>
-
-            <h1>URL Safety Analyzer</h1>
-
-            <p className="sub">
-              Check an internship website or recruitment link for suspicious
-              URL patterns.
-            </p>
-          </div>
-
-          <div
-            className={`status ${
-              systemStatus === "Backend offline" ? "offline" : ""
-            }`}
-          >
-            <span></span>
-
-            {systemStatus === "Backend offline"
-              ? "API Offline"
-              : "API Online"}
-          </div>
-        </header>
-
-        <section className="stats">
-          <div>
-            <small>URL ENGINE</small>
-            <strong>ACTIVE</strong>
-          </div>
-
-          <div>
-            <small>CHECKS</small>
-            <strong>10+</strong>
-          </div>
-
-          <div>
-            <small>API</small>
-            <strong>8081</strong>
-          </div>
-        </section>
-
-        <div className="grid">
-          <section className="panel">
-            <h2>Analyze a URL</h2>
-
-            <form onSubmit={analyzeUrl}>
-              <label>
-                Internship / recruitment URL
-              </label>
-
-              <div className="input">
-                <Link size={17} />
-
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://company.com/internship"
-                />
-              </div>
-
-              <label>
-                Recruiter email <span>optional</span>
-              </label>
-
-              <div className="input">
-                <Mail size={17} />
-
-                <input
-                  type="email"
-                  value={urlEmail}
-                  onChange={(e) => setUrlEmail(e.target.value)}
-                  placeholder="hr@company.com"
-                />
-              </div>
-
-              {urlError && (
-                <div className="error-message">
-                  ⚠️ {urlError}
-                </div>
-              )}
-
-              <button type="submit" disabled={urlLoading}>
-                {urlLoading
-                  ? "Checking URL..."
-                  : "Analyze URL"}
-              </button>
-            </form>
-          </section>
-
-          <section className="panel result">
-            <h2>URL Assessment</h2>
-
-            {!urlResult ? (
-              <div className="empty">
-                <Link size={48} />
-
-                <p>URL analysis will appear here</p>
-
-                <small>
-                  InternShield checks HTTPS, URL shorteners, IP addresses,
-                  suspicious keywords, domains, ports and other URL signals.
-                </small>
-              </div>
-            ) : (
-              <>
-                <div className={`risk ${riskLevel.toLowerCase()}`}>
-                  <div>
-                    <small>RISK LEVEL</small>
-                    <strong>{riskLevel}</strong>
-                  </div>
-
-                  <div className="score">
-                    {urlResult.score}
-                    <span>/100</span>
-                  </div>
-                </div>
-
-                <div className="url-display">
-                  <ExternalLink size={15} />
-                  <span>{urlResult.url}</span>
-                </div>
-
-                <div className="domain-display">
-                  <small>DOMAIN</small>
-                  <strong>{urlResult.domain || "Unknown"}</strong>
-                </div>
-
-                <h3>Why this score?</h3>
-
-                {urlResult.indicators &&
-                urlResult.indicators.length > 0 ? (
-                  <ul>
-                    {urlResult.indicators.map((indicator, index) => (
-                      <li key={index}>
-                        <AlertTriangle size={16} />
-                        <span>{indicator}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="muted">
-                    No major URL risk signals were detected.
-                  </p>
-                )}
-
-                <h3>What you should do</h3>
-
-                <ul className="safe">
-                  {urlResult.recommendations?.map(
-                    (recommendation, index) => (
-                      <li key={index}>
-                        <ShieldCheck size={16} />
-                        <span>{recommendation}</span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              </>
-            )}
-          </section>
-        </div>
-
-        <section className="panel">
-          <h2>URL checks performed</h2>
-
-          <div className="url-check-grid">
-            <div>🔒 HTTPS security</div>
-            <div>🔗 URL shorteners</div>
-            <div>🌐 IP-based URLs</div>
-            <div>⚠️ Suspicious keywords</div>
-            <div>🏷️ Domain structure</div>
-            <div>🚪 Non-standard ports</div>
-            <div>📧 Email-domain comparison</div>
-            <div>📦 Suspicious file types</div>
-          </div>
-        </section>
-      </>
-    );
-  };
-  // =========================================================
-// COMPANY VERIFICATION PAGE
-// =========================================================
-
-
-  // =========================================================
-  // HISTORY PAGE
-  // =========================================================
+  /* =======================================================
+     HISTORY PAGE
+  ======================================================= */
 
   const HistoryPage = () => (
     <>
       <header>
         <div>
-          <p className="eyebrow">INTERNSHIP SECURITY</p>
+          <p className="eyebrow">
+            INTERNSHIP SECURITY
+          </p>
 
           <h1>Analysis History</h1>
 
           <p className="sub">
-            Review previous internship risk assessments.
+            Review previous internship risk
+            assessments.
           </p>
         </div>
 
@@ -1094,24 +1324,40 @@ const verifyCompany = async (e) => {
 
       <section className="stats">
         <div>
-          <small>TOTAL ANALYSES</small>
-          <strong>{history.length}</strong>
+          <small>
+            TOTAL ANALYSES
+          </small>
+
+          <strong>
+            {history.length}
+          </strong>
         </div>
 
         <div>
-          <small>MEDIUM + HIGH</small>
-          <strong>{counts.MEDIUM + counts.HIGH}</strong>
+          <small>
+            MEDIUM + HIGH
+          </small>
+
+          <strong>
+            {counts.MEDIUM +
+              counts.HIGH}
+          </strong>
         </div>
 
         <div>
           <small>CRITICAL</small>
-          <strong>{counts.CRITICAL}</strong>
+
+          <strong>
+            {counts.CRITICAL}
+          </strong>
         </div>
       </section>
 
       <section className="panel">
         <div className="section-heading">
-          <h2>All recent analyses</h2>
+          <h2>
+            All recent analyses
+          </h2>
 
           <button
             className="small-button"
@@ -1129,30 +1375,39 @@ const verifyCompany = async (e) => {
             <p>No analyses found</p>
 
             <small>
-              Your completed internship risk assessments will appear here.
+              Your completed internship risk
+              assessments will appear here.
             </small>
           </div>
         ) : (
           <div className="history full-history">
             {history.map((item) => (
-              <div className="history-card" key={item.id}>
+              <div
+                className="history-card"
+                key={item.id}
+              >
                 <div className="history-main">
                   <span
                     className={`dot ${item.riskLevel.toLowerCase()}`}
                   ></span>
 
                   <div>
-                    <strong>{item.riskLevel}</strong>
+                    <strong>
+                      {item.riskLevel}
+                    </strong>
 
                     <p>
-                      Risk score: {item.score}/100
+                      Risk score:{" "}
+                      {item.score}/100
                     </p>
                   </div>
                 </div>
 
                 <div className="history-date">
                   <small>
-                    {new Date(item.createdAt).toLocaleString()}
+                    {new Date(
+                      item.createdAt
+                    ).toLocaleString()}
                   </small>
                 </div>
               </div>
@@ -1162,32 +1417,54 @@ const verifyCompany = async (e) => {
       </section>
     </>
   );
-    // =========================================================
-  // ANALYTICS DASHBOARD PAGE
-  // =========================================================
+
+  /* =======================================================
+     ANALYTICS PAGE
+  ======================================================= */
 
   const AnalyticsPage = () => {
-    const total = analytics?.totalScans || 0;
-    const low = analytics?.lowRisk || 0;
-    const medium = analytics?.mediumRisk || 0;
-    const high = analytics?.highRisk || 0;
-    const critical = analytics?.criticalRisk || 0;
+    const total =
+      analytics?.totalScans || 0;
 
-    const getPercentage = (value) => {
-      if (total === 0) return 0;
-      return Math.round((value / total) * 100);
+    const low =
+      analytics?.lowRisk || 0;
+
+    const medium =
+      analytics?.mediumRisk || 0;
+
+    const high =
+      analytics?.highRisk || 0;
+
+    const critical =
+      analytics?.criticalRisk || 0;
+
+    const getPercentage = (
+      value
+    ) => {
+      if (total === 0) {
+        return 0;
+      }
+
+      return Math.round(
+        (value / total) * 100
+      );
     };
 
     return (
       <>
         <header>
           <div>
-            <p className="eyebrow">SECURITY ANALYTICS</p>
+            <p className="eyebrow">
+              SECURITY ANALYTICS
+            </p>
 
-            <h1>Analytics Dashboard</h1>
+            <h1>
+              Analytics Dashboard
+            </h1>
 
             <p className="sub">
-              Overview of internship safety scans performed by InternShield AI.
+              Overview of internship safety
+              scans performed by InternShield AI.
             </p>
           </div>
 
@@ -1196,7 +1473,9 @@ const verifyCompany = async (e) => {
             onClick={loadAnalytics}
             disabled={analyticsLoading}
           >
-            {analyticsLoading ? "Refreshing..." : "Refresh Data"}
+            {analyticsLoading
+              ? "Refreshing..."
+              : "Refresh Data"}
           </button>
         </header>
 
@@ -1206,214 +1485,383 @@ const verifyCompany = async (e) => {
           </div>
         )}
 
-        {analyticsLoading && !analytics && (
-          <section className="card">
-            <p>Loading analytics...</p>
-          </section>
-        )}
+        {analyticsLoading &&
+          !analytics && (
+            <section className="card">
+              <p>
+                Loading analytics...
+              </p>
+            </section>
+          )}
 
         {analytics && (
           <>
-            {/* SUMMARY CARDS */}
             <section className="stats-grid">
-
               <div className="stat-card">
-                <span className="stat-label">TOTAL SCANS</span>
+                <span className="stat-label">
+                  TOTAL SCANS
+                </span>
+
                 <strong>{total}</strong>
-                <small>All internship analyses</small>
+
+                <small>
+                  All internship analyses
+                </small>
               </div>
 
               <div className="stat-card">
-                <span className="stat-label">LOW RISK</span>
+                <span className="stat-label">
+                  LOW RISK
+                </span>
+
                 <strong>{low}</strong>
-                <small>{getPercentage(low)}% of scans</small>
+
+                <small>
+                  {getPercentage(low)}%
+                  {" "}of scans
+                </small>
               </div>
 
               <div className="stat-card">
-                <span className="stat-label">MEDIUM RISK</span>
+                <span className="stat-label">
+                  MEDIUM RISK
+                </span>
+
                 <strong>{medium}</strong>
-                <small>{getPercentage(medium)}% of scans</small>
+
+                <small>
+                  {getPercentage(medium)}%
+                  {" "}of scans
+                </small>
               </div>
 
               <div className="stat-card">
-                <span className="stat-label">HIGH RISK</span>
+                <span className="stat-label">
+                  HIGH RISK
+                </span>
+
                 <strong>{high}</strong>
-                <small>{getPercentage(high)}% of scans</small>
+
+                <small>
+                  {getPercentage(high)}%
+                  {" "}of scans
+                </small>
               </div>
 
               <div className="stat-card">
-                <span className="stat-label">CRITICAL</span>
+                <span className="stat-label">
+                  CRITICAL
+                </span>
+
                 <strong>{critical}</strong>
-                <small>{getPercentage(critical)}% of scans</small>
+
+                <small>
+                  {getPercentage(critical)}%
+                  {" "}of scans
+                </small>
               </div>
-
             </section>
-                        {/* RISK OVERVIEW */}
-            <section className="analytics-overview">
 
+            <section className="analytics-overview">
               <div className="card overview-card">
                 <div className="section-heading">
                   <div>
-                    <p className="eyebrow">RISK OVERVIEW</p>
-                    <h2>Overall Security Status</h2>
+                    <p className="eyebrow">
+                      RISK OVERVIEW
+                    </p>
+
+                    <h2>
+                      Overall Security Status
+                    </h2>
                   </div>
                 </div>
 
                 <div className="risk-overview-content">
-
                   <div
                     className="risk-donut"
                     style={{
                       background: `conic-gradient(
-                        #22c55e 0deg ${getPercentage(low) * 3.6}deg,
-                        #f59e0b ${getPercentage(low) * 3.6}deg ${(getPercentage(low) + getPercentage(medium)) * 3.6}deg,
-                        #f97316 ${(getPercentage(low) + getPercentage(medium)) * 3.6}deg ${(getPercentage(low) + getPercentage(medium) + getPercentage(high)) * 3.6}deg,
-                        #ef4444 ${(getPercentage(low) + getPercentage(medium) + getPercentage(high)) * 3.6}deg 360deg
-                      )`
+                        #22c55e 0deg ${getPercentage(
+                          low
+                        ) * 3.6}deg,
+
+                        #f59e0b ${
+                          getPercentage(low) *
+                          3.6
+                        }deg ${
+                          (getPercentage(low) +
+                            getPercentage(
+                              medium
+                            )) *
+                          3.6
+                        }deg,
+
+                        #f97316 ${
+                          (getPercentage(low) +
+                            getPercentage(
+                              medium
+                            )) *
+                          3.6
+                        }deg ${
+                          (getPercentage(low) +
+                            getPercentage(
+                              medium
+                            ) +
+                            getPercentage(
+                              high
+                            )) *
+                          3.6
+                        }deg,
+
+                        #ef4444 ${
+                          (getPercentage(low) +
+                            getPercentage(
+                              medium
+                            ) +
+                            getPercentage(
+                              high
+                            )) *
+                          3.6
+                        }deg 360deg
+                      )`,
                     }}
                   >
                     <div className="donut-center">
-                      <strong>{total}</strong>
-                      <span>Scans</span>
+                      <strong>
+                        {total}
+                      </strong>
+
+                      <span>
+                        Scans
+                      </span>
                     </div>
                   </div>
 
                   <div className="risk-legend">
-
                     <div className="legend-item">
                       <span className="legend-dot low-dot"></span>
+
                       <div>
-                        <strong>Low Risk</strong>
-                        <small>{low} scans · {getPercentage(low)}%</small>
+                        <strong>
+                          Low Risk
+                        </strong>
+
+                        <small>
+                          {low} scans ·{" "}
+                          {getPercentage(
+                            low
+                          )}%
+                        </small>
                       </div>
                     </div>
 
                     <div className="legend-item">
                       <span className="legend-dot medium-dot"></span>
+
                       <div>
-                        <strong>Medium Risk</strong>
-                        <small>{medium} scans · {getPercentage(medium)}%</small>
+                        <strong>
+                          Medium Risk
+                        </strong>
+
+                        <small>
+                          {medium} scans ·{" "}
+                          {getPercentage(
+                            medium
+                          )}%
+                        </small>
                       </div>
                     </div>
 
                     <div className="legend-item">
                       <span className="legend-dot high-dot"></span>
+
                       <div>
-                        <strong>High Risk</strong>
-                        <small>{high} scans · {getPercentage(high)}%</small>
+                        <strong>
+                          High Risk
+                        </strong>
+
+                        <small>
+                          {high} scans ·{" "}
+                          {getPercentage(
+                            high
+                          )}%
+                        </small>
                       </div>
                     </div>
 
                     <div className="legend-item">
                       <span className="legend-dot critical-dot"></span>
+
                       <div>
-                        <strong>Critical</strong>
-                        <small>{critical} scans · {getPercentage(critical)}%</small>
+                        <strong>
+                          Critical
+                        </strong>
+
+                        <small>
+                          {critical} scans ·{" "}
+                          {getPercentage(
+                            critical
+                          )}%
+                        </small>
                       </div>
                     </div>
-
                   </div>
-
                 </div>
               </div>
 
               <div className="card security-summary">
-                <p className="eyebrow">SECURITY SUMMARY</p>
+                <p className="eyebrow">
+                  SECURITY SUMMARY
+                </p>
 
-                <h2>Threat Exposure</h2>
+                <h2>
+                  Threat Exposure
+                </h2>
 
                 <p className="summary-text">
-                  InternShield AI has analyzed <strong>{total}</strong> internship
-                  offers so far.
+                  InternShield AI has analyzed{" "}
+                  <strong>{total}</strong>{" "}
+                  internship offers so far.
                 </p>
 
                 <div className="summary-stat">
-                  <span>Potentially risky scans</span>
-                  <strong>{high + critical}</strong>
-                </div>
+                  <span>
+                    Potentially risky scans
+                  </span>
 
-                <div className="summary-stat">
-                  <span>Risk exposure</span>
                   <strong>
-                    {getPercentage(high + critical)}%
+                    {high + critical}
                   </strong>
                 </div>
 
                 <div className="summary-stat">
-                  <span>Safe scans</span>
-                  <strong>{low}</strong>
+                  <span>
+                    Risk exposure
+                  </span>
+
+                  <strong>
+                    {getPercentage(
+                      high + critical
+                    )}
+                    %
+                  </strong>
                 </div>
 
-              </div>
+                <div className="summary-stat">
+                  <span>
+                    Safe scans
+                  </span>
 
+                  <strong>{low}</strong>
+                </div>
+              </div>
             </section>
-            {/* RISK DISTRIBUTION */}
+
             <section className="card">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">RISK DISTRIBUTION</p>
-                  <h2>Internship Scan Results</h2>
+                  <p className="eyebrow">
+                    RISK DISTRIBUTION
+                  </p>
+
+                  <h2>
+                    Internship Scan Results
+                  </h2>
                 </div>
               </div>
 
               <div className="risk-bars">
-
                 <div className="risk-row">
                   <div className="risk-row-header">
-                    <span>Low Risk</span>
-                    <strong>{low}</strong>
+                    <span>
+                      Low Risk
+                    </span>
+
+                    <strong>
+                      {low}
+                    </strong>
                   </div>
 
                   <div className="progress-track">
                     <div
                       className="progress-fill low"
-                      style={{ width: `${getPercentage(low)}%` }}
+                      style={{
+                        width: `${getPercentage(
+                          low
+                        )}%`,
+                      }}
                     />
                   </div>
                 </div>
 
                 <div className="risk-row">
                   <div className="risk-row-header">
-                    <span>Medium Risk</span>
-                    <strong>{medium}</strong>
+                    <span>
+                      Medium Risk
+                    </span>
+
+                    <strong>
+                      {medium}
+                    </strong>
                   </div>
 
                   <div className="progress-track">
                     <div
                       className="progress-fill medium"
-                      style={{ width: `${getPercentage(medium)}%` }}
+                      style={{
+                        width: `${getPercentage(
+                          medium
+                        )}%`,
+                      }}
                     />
                   </div>
                 </div>
 
                 <div className="risk-row">
                   <div className="risk-row-header">
-                    <span>High Risk</span>
-                    <strong>{high}</strong>
+                    <span>
+                      High Risk
+                    </span>
+
+                    <strong>
+                      {high}
+                    </strong>
                   </div>
 
                   <div className="progress-track">
                     <div
                       className="progress-fill high"
-                      style={{ width: `${getPercentage(high)}%` }}
+                      style={{
+                        width: `${getPercentage(
+                          high
+                        )}%`,
+                      }}
                     />
                   </div>
                 </div>
 
                 <div className="risk-row">
                   <div className="risk-row-header">
-                    <span>Critical</span>
-                    <strong>{critical}</strong>
+                    <span>
+                      Critical
+                    </span>
+
+                    <strong>
+                      {critical}
+                    </strong>
                   </div>
 
                   <div className="progress-track">
                     <div
                       className="progress-fill critical"
-                      style={{ width: `${getPercentage(critical)}%` }}
+                      style={{
+                        width: `${getPercentage(
+                          critical
+                        )}%`,
+                      }}
                     />
                   </div>
                 </div>
-
               </div>
             </section>
           </>
@@ -1422,16 +1870,17 @@ const verifyCompany = async (e) => {
     );
   };
 
-
-  // =========================================================
-  // SYSTEM STATUS PAGE
-  // =========================================================
+  /* =======================================================
+     SYSTEM STATUS PAGE
+  ======================================================= */
 
   const SystemStatusPage = () => (
     <>
       <header>
         <div>
-          <p className="eyebrow">SYSTEM MONITORING</p>
+          <p className="eyebrow">
+            SYSTEM MONITORING
+          </p>
 
           <h1>System Status</h1>
 
@@ -1448,10 +1897,16 @@ const verifyCompany = async (e) => {
         >
           <RefreshCw
             size={15}
-            className={checkingStatus ? "spin" : ""}
+            className={
+              checkingStatus
+                ? "spin"
+                : ""
+            }
           />
 
-          {checkingStatus ? "Checking..." : "Refresh"}
+          {checkingStatus
+            ? "Checking..."
+            : "Refresh"}
         </button>
       </header>
 
@@ -1462,22 +1917,30 @@ const verifyCompany = async (e) => {
           </div>
 
           <div className="system-info">
-            <small>BACKEND API</small>
+            <small>
+              BACKEND API
+            </small>
 
-            <h2>{systemStatus}</h2>
+            <h2>
+              {systemStatus}
+            </h2>
 
-            <p>Spring Boot REST API</p>
+            <p>
+              Spring Boot REST API
+            </p>
           </div>
 
           <span
             className={`system-badge ${
-              systemStatus === "Backend offline"
+              systemStatus ===
+              "Backend offline"
                 ? "badge-offline"
                 : ""
             }`}
           >
             ●{" "}
-            {systemStatus === "Backend offline"
+            {systemStatus ===
+            "Backend offline"
               ? "Offline"
               : "Online"}
           </span>
@@ -1489,22 +1952,30 @@ const verifyCompany = async (e) => {
           </div>
 
           <div className="system-info">
-            <small>DATABASE</small>
+            <small>
+              DATABASE
+            </small>
 
-            <h2>PostgreSQL</h2>
+            <h2>
+              PostgreSQL
+            </h2>
 
-            <p>Analysis history storage</p>
+            <p>
+              Analysis history storage
+            </p>
           </div>
 
           <span
             className={`system-badge ${
-              systemStatus === "Backend offline"
+              systemStatus ===
+              "Backend offline"
                 ? "badge-offline"
                 : ""
             }`}
           >
             ●{" "}
-            {systemStatus === "Backend offline"
+            {systemStatus ===
+            "Backend offline"
               ? "Unavailable"
               : "Connected"}
           </span>
@@ -1516,11 +1987,17 @@ const verifyCompany = async (e) => {
           </div>
 
           <div className="system-info">
-            <small>RISK ENGINE</small>
+            <small>
+              RISK ENGINE
+            </small>
 
-            <h2>Operational</h2>
+            <h2>
+              Operational
+            </h2>
 
-            <p>Internship risk analysis engine</p>
+            <p>
+              Internship risk analysis engine
+            </p>
           </div>
 
           <span className="system-badge">
@@ -1534,11 +2011,17 @@ const verifyCompany = async (e) => {
           </div>
 
           <div className="system-info">
-            <small>FRONTEND</small>
+            <small>
+              FRONTEND
+            </small>
 
-            <h2>React + Vite</h2>
+            <h2>
+              React + Vite
+            </h2>
 
-            <p>InternShield user interface</p>
+            <p>
+              InternShield user interface
+            </p>
           </div>
 
           <span className="system-badge">
@@ -1548,87 +2031,162 @@ const verifyCompany = async (e) => {
       </section>
 
       <section className="panel">
-        <h2>InternShield AI Architecture</h2>
+        <h2>
+          InternShield AI Architecture
+        </h2>
 
         <div className="architecture">
-          <div>React Frontend</div>
+          <div>
+            React Frontend
+          </div>
+
           <span>→</span>
-          <div>Spring Boot API</div>
+
+          <div>
+            Spring Boot API
+          </div>
+
           <span>→</span>
-          <div>Risk Engine</div>
+
+          <div>
+            Risk Engine
+          </div>
+
           <span>→</span>
-          <div>PostgreSQL</div>
+
+          <div>
+            PostgreSQL
+          </div>
         </div>
       </section>
 
       <section className="panel">
-        <h2>System information</h2>
+        <h2>
+          System information
+        </h2>
 
         <div className="system-info-grid">
           <div>
-            <small>FRONTEND</small>
-            <strong>React + Vite</strong>
+            <small>
+              FRONTEND
+            </small>
+
+            <strong>
+              React + Vite
+            </strong>
           </div>
 
           <div>
-            <small>BACKEND</small>
-            <strong>Spring Boot</strong>
+            <small>
+              BACKEND
+            </small>
+
+            <strong>
+              Spring Boot
+            </strong>
           </div>
 
           <div>
-            <small>DATABASE</small>
-            <strong>PostgreSQL</strong>
+            <small>
+              DATABASE
+            </small>
+
+            <strong>
+              PostgreSQL
+            </strong>
           </div>
 
           <div>
-            <small>API PORT</small>
-            <strong>8081</strong>
+            <small>
+              API PORT
+            </small>
+
+            <strong>
+              8081
+            </strong>
           </div>
         </div>
       </section>
     </>
   );
 
-  // =========================================================
-  // MAIN RETURN
-  // =========================================================
+  /* =======================================================
+     MAIN RETURN
+  ======================================================= */
 
   return (
     <div className="app">
       <Sidebar />
 
       <main>
-        {activePage === "analyzer" && <AnalyzerPage />}
+        {activePage === "analyzer" && (
+          <AnalyzerPage
+            result={result}
+            history={history}
+            counts={counts}
+            loading={loading}
+            error={error}
+            analyze={analyze}
+            systemStatus={systemStatus}
+            setActivePage={setActivePage}
+          />
+        )}
 
-        {activePage === "url" && <UrlSafetyPage />} 
+        {activePage === "url" && (
+          <UrlSafetyPage
+            urlResult={urlResult}
+            urlLoading={urlLoading}
+            urlError={urlError}
+            analyzeUrl={analyzeUrl}
+            systemStatus={systemStatus}
+          />
+        )}
 
         {activePage === "company" && (
-  <CompanyVerificationPage
-    companyName={companyName}
-    setCompanyName={setCompanyName}
-    companyWebsite={companyWebsite}
-    setCompanyWebsite={setCompanyWebsite}
-    companyEmail={companyEmail}
-    setCompanyEmail={setCompanyEmail}
-    companyResult={companyResult}
-    companyLoading={companyLoading}
-    companyError={companyError}
-    verifyCompany={verifyCompany}
-    systemStatus={systemStatus}
-  />
-)}
+          <CompanyVerificationPage
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            companyWebsite={companyWebsite}
+            setCompanyWebsite={
+              setCompanyWebsite
+            }
+            companyEmail={companyEmail}
+            setCompanyEmail={setCompanyEmail}
+            companyResult={companyResult}
+            companyLoading={
+              companyLoading
+            }
+            companyError={companyError}
+            verifyCompany={
+              verifyCompany
+            }
+            systemStatus={systemStatus}
+          />
+        )}
 
-        {activePage === "analytics" && <AnalyticsPage />}
+        {activePage === "analytics" && (
+          <AnalyticsPage />
+        )}
 
-        {activePage === "history" && <HistoryPage />}
+        {activePage === "history" && (
+          <HistoryPage />
+        )}
 
-        {activePage === "status" && <SystemStatusPage />}
+        {activePage === "status" && (
+          <SystemStatusPage />
+        )}
       </main>
     </div>
   );
 }
 
-createRoot(document.getElementById("root")).render(
+/* =========================================================
+   RENDER
+========================================================= */
+
+createRoot(
+  document.getElementById("root")
+).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
