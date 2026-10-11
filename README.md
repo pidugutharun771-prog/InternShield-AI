@@ -1,84 +1,148 @@
-# InternShield AI 🛡️
+# 🛡️ InternShield AI
 
-**InternShield AI** is a Java full-stack internship safety platform designed to help students identify potentially fraudulent or suspicious internship opportunities before sharing information or making payments.
+### AI-Inspired Internship Scam Detection & Safety Platform
 
-The system combines explainable rule-based risk analysis, URL safety checks, company/recruiter verification, persistent scan history, and an analytics dashboard.
+InternShield AI is a Java full-stack web application designed to help students identify potentially fraudulent or suspicious internship opportunities before sharing sensitive information or making payments.
 
-## 🚀 Live Demo
-
-**Frontend:**  
-https://internshield-frontend-ygy9.onrender.com
-
-**Backend API:**  
-https://internshield-ai-0pzs.onrender.com
-
-**Health Check:**  
-https://internshield-ai-0pzs.onrender.com/actuator/health
-
-## 📂 Source Code
-
-GitHub:  
-https://github.com/Chikatla-Manaswini/InternShield-AI.git
+The platform uses an **explainable rule-based risk analysis engine**, URL safety analysis, company/recruiter verification, PostgreSQL-backed analysis history, analytics, and deployment health monitoring.
 
 ---
 
-## ✨ Features
+## 🚀 Live Application
 
-### 1. Internship Risk Analyzer
-Analyzes internship offer text and identifies suspicious signals such as:
+### 🌐 Frontend
+**Vercel:**  
+https://intern-shield-ai-five.vercel.app/
 
-- Registration or processing fees
-- Payment/deposit requests
+### ⚙️ Backend API
+**Render:**  
+https://internshield-ai-yhu1.onrender.com
+
+### ❤️ Backend Health Check
+https://internshield-ai-yhu1.onrender.com/actuator/health
+
+### 💻 Source Code
+**GitHub:**  
+https://github.com/pidugutharun771-prog/InternShield-AI
+
+---
+
+## 🎯 Problem Statement
+
+Fake internship offers are increasingly used to deceive students through:
+
+- Registration and processing fees
+- Security deposits
+- Guaranteed selection claims
 - No-interview selection
-- Guaranteed jobs or placements
-- Urgency and limited-seat pressure
-- Suspicious communication channels
-- Cryptocurrency/gift-card requests
+- Fake recruiter identities
+- Suspicious websites
+- Public email addresses
 - Requests for sensitive information
-- Suspicious external links
-- Free/public recruiter email domains
+- Urgency and pressure tactics
+- Suspicious payment methods
 
-The system produces:
+Students may lose money or expose personal information before realizing that an opportunity is fraudulent.
+
+**InternShield AI provides an early-warning system that explains suspicious indicators and gives students actionable safety recommendations.**
+
+---
+
+# ✨ Key Features
+
+## 1. 🔍 Internship Risk Analyzer
+
+Users can enter internship offer information and receive an explainable risk assessment.
+
+The analyzer detects indicators such as:
+
+- Registration fees
+- Processing fees
+- Security deposits
+- Payment requests
+- No-interview selection
+- Guaranteed selection
+- Guaranteed placement
+- Urgency or limited-seat pressure
+- Requests for sensitive information
+- Suspicious communication channels
+- Cryptocurrency or gift-card requests
+- Public/free recruiter email domains
+- Suspicious external links
+
+### Results include:
 
 - Risk score
 - Risk level
 - Detected indicators
+- Explanation of detected risks
 - Safety recommendations
 
-Risk levels:
+### Risk Levels
 
-`LOW` → `MEDIUM` → `HIGH` → `CRITICAL`
+| Score | Risk Level |
+|---:|---|
+| 0–24 | 🟢 LOW |
+| 25–44 | 🟡 MEDIUM |
+| 45–69 | 🟠 HIGH |
+| 70–100 | 🔴 CRITICAL |
 
-### 2. URL Safety Analyzer
-Checks internship/job URLs for common warning signs, including:
+---
 
-- URL shorteners
-- Suspicious keywords
-- IP-address URLs
+## 2. 🔗 URL Safety Analyzer
+
+InternShield AI analyzes internship and job URLs for common security warning signs.
+
+It checks for:
+
 - HTTP instead of HTTPS
+- Suspicious keywords
+- URL shorteners
+- IP-address URLs
 - Suspicious ports
 - Deep subdomains
 - Excessive hyphens
 - Executable file extensions
-- Suspicious URL patterns
+- Suspicious URL structures
 - Public recruiter email domains
 - Email/website domain mismatch
 
-### 3. Company Verification
-Checks:
+The system returns a risk score, risk level, detected indicators, and recommendations.
 
+---
+
+## 3. 🏢 Company & Recruiter Verification
+
+The company verification module evaluates information such as:
+
+- Company name
 - Company website
 - Website domain
+- Recruiter email
 - Recruiter email domain
 - Public email providers
 - Email/website domain matching
 - Company-name/domain consistency
-- Suspicious domain structure
+- Suspicious domain structures
 
-Returns a verification score, status, findings, and recommendations.
+### Verification Results
 
-### 4. Analytics Dashboard
-Provides an overview of analyzed internship offers:
+The system provides:
+
+- Verification score
+- Verification status
+- Findings
+- Recommendations
+
+For example, a company using a public email address such as `gmail.com` while claiming to represent a large organization can receive a verification warning.
+
+---
+
+## 4. 📊 Analytics Dashboard
+
+The analytics dashboard provides an overview of analyzed internship opportunities.
+
+It includes:
 
 - Total scans
 - Low-risk scans
@@ -88,82 +152,120 @@ Provides an overview of analyzed internship offers:
 - Risk distribution
 - Threat exposure summary
 
-### 5. Persistent Analysis History
-Internship risk analyses are stored in PostgreSQL so previous analyses can be retrieved through the backend.
-
-### 6. API Health Monitoring
-Spring Boot Actuator provides a health endpoint for deployment monitoring.
+This helps users understand the overall pattern of analyzed opportunities.
 
 ---
 
-## 🏗️ Architecture
+## 5. 🕘 Persistent Analysis History
+
+Internship analyses are stored in **PostgreSQL**.
+
+Users can retrieve previous analyses through the application.
+
+This demonstrates persistent backend data management using:
+
+**Spring Data JPA + Hibernate + PostgreSQL**
+
+---
+
+## 6. ❤️ System Health Monitoring
+
+The backend uses **Spring Boot Actuator** for application health monitoring.
+
+Health endpoint:
 
 ```text
-                    ┌──────────────────────────┐
-                    │       React + Vite       │
-                    │        Frontend          │
-                    └────────────┬─────────────┘
+GET /actuator/health
+```
+
+This is also used by the Render deployment for service health monitoring.
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                    ┌─────────────────────────┐
+                    │     React + Vite        │
+                    │       Frontend          │
+                    │        Vercel            │
+                    └────────────┬────────────┘
+                                 │
                                  │ REST API
                                  ▼
-                    ┌──────────────────────────┐
-                    │    Spring Boot Backend   │
-                    │                          │
-                    │  Risk Analysis           │
-                    │  URL Safety              │
-                    │  Company Verification    │
-                    │  Analytics               │
-                    │  Security Configuration  │
-                    └────────────┬─────────────┘
-                                 │ JPA / Hibernate
+                    ┌─────────────────────────┐
+                    │    Spring Boot API      │
+                    │        Backend           │
+                    │         Render           │
+                    └────────────┬────────────┘
+                                 │
+                         JPA / Hibernate
+                                 │
                                  ▼
-                    ┌──────────────────────────┐
-                    │       PostgreSQL         │
-                    │        Database          │
-                    └──────────────────────────┘
-```
-
-### Deployment Architecture
-
-```text
-GitHub
-  │
-  ├── Render Static Site
-  │       └── React + Vite Frontend
-  │
-  └── Render Web Service
-          └── Spring Boot Backend
-                    │
-                    ▼
-             Render PostgreSQL
+                    ┌─────────────────────────┐
+                    │       PostgreSQL        │
+                    │         Render           │
+                    └─────────────────────────┘
 ```
 
 ---
 
-## 🛠️ Technology Stack
+# ☁️ Deployment Architecture
+
+```text
+                    GitHub Repository
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+        Vercel                      Render
+     React + Vite               Spring Boot API
+        Frontend                      │
+                                      │
+                                      ▼
+                              Render PostgreSQL
+```
+
+### Deployment Services
+
+| Component | Platform |
+|---|---|
+| Source Code | GitHub |
+| Frontend | Vercel |
+| Backend | Render |
+| Database | Render PostgreSQL |
+| Backend Container | Docker |
+| Backend Build | Maven |
+
+---
+
+# 🛠️ Technology Stack
 
 | Layer | Technology |
 |---|---|
-| Language | Java 21 |
-| Backend | Spring Boot 3.5.6 |
+| Programming Language | Java 21 |
+| Backend Framework | Spring Boot 3.5.6 |
 | REST API | Spring Web |
-| Validation | Spring Validation |
 | Security | Spring Security |
-| Persistence | Spring Data JPA / Hibernate |
-| Database | PostgreSQL 16 |
+| Authentication Architecture | JWT-ready |
+| Persistence | Spring Data JPA |
+| ORM | Hibernate |
+| Database | PostgreSQL |
 | Frontend | React |
-| Build Tool | Vite |
-| Backend Build | Maven |
-| Monitoring | Spring Boot Actuator |
+| Frontend Build Tool | Vite |
+| Backend Build Tool | Maven |
 | Containerization | Docker |
-| Deployment | Render |
+| Monitoring | Spring Boot Actuator |
 | Version Control | Git / GitHub |
+| Backend Deployment | Render |
+| Frontend Deployment | Vercel |
 
 ---
 
-## 📁 Project Structure
+# 📁 Project Structure
 
 ```text
-InternShieldAI/
+InternShield-AI/
 │
 ├── backend/
 │   ├── src/
@@ -176,8 +278,9 @@ InternShieldAI/
 │   │       │       ├── model/
 │   │       │       ├── repository/
 │   │       │       └── service/
-│   │       ├── resources/
-│   │       └── ...
+│   │       │
+│   │       └── resources/
+│   │
 │   ├── Dockerfile
 │   └── pom.xml
 │
@@ -195,9 +298,9 @@ InternShieldAI/
 
 ---
 
-## ⚙️ Running the Project Locally
+# ⚙️ Running Locally
 
-### Prerequisites
+## Prerequisites
 
 Install:
 
@@ -208,50 +311,56 @@ Install:
 - PostgreSQL 16+
 - Git
 
-### 1. Clone the repository
+---
+
+## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Chikatla-Manaswini/InternShield-AI.git
+git clone https://github.com/pidugutharun771-prog/InternShield-AI.git
 cd InternShield-AI
 ```
 
-### 2. Configure PostgreSQL
+---
 
-Create a database named:
+## 2. Configure PostgreSQL
+
+Create a PostgreSQL database named:
 
 ```text
 internshield
 ```
 
-Configure the backend database credentials using environment variables.
+Configure the backend using environment variables:
 
-Example:
-
-```env
+```text
 DB_URL=jdbc:postgresql://localhost:5432/internshield
 DB_USERNAME=postgres
-DB_PASSWORD=postgres
-JWT_SECRET=replace-with-a-long-random-secret
+DB_PASSWORD=your_password
+JWT_SECRET=your_long_random_secret
 ```
 
-**Do not commit real passwords, secrets, or `.env` files to GitHub.**
+> Never commit real passwords, database credentials, JWT secrets, or `.env` files to GitHub.
 
-### 3. Start the backend
+---
+
+## 3. Start the Backend
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-The backend can be accessed at:
+The backend normally runs at:
 
 ```text
 http://localhost:8080
 ```
 
-If port 8080 is already in use, run Spring Boot on another available port.
+If port 8080 is already occupied, configure another available port.
 
-### 4. Start the frontend
+---
+
+## 4. Start the Frontend
 
 Open another terminal:
 
@@ -261,7 +370,7 @@ npm install
 npm run dev
 ```
 
-The Vite development server normally starts at:
+The Vite development server normally runs at:
 
 ```text
 http://localhost:5173
@@ -269,165 +378,265 @@ http://localhost:5173
 
 ---
 
-## 🔌 Main API Endpoints
+# 🔌 API Endpoints
 
-### Internship Analysis
+## Internship Analysis
 
 ```http
 POST /api/analysis
-GET  /api/analysis/recent
 ```
 
-### URL Analysis
+Analyze an internship opportunity and return risk information.
+
+```http
+GET /api/analysis/recent
+```
+
+Retrieve recent analysis history.
+
+---
+
+## URL Safety
 
 ```http
 POST /api/url/analyze
 ```
 
-### Company Verification
+Analyze an internship or job URL.
+
+---
+
+## Company Verification
 
 ```http
 POST /api/company/verify
 ```
 
-### Analytics
+Verify company and recruiter information.
+
+---
+
+## Analytics
 
 ```http
 GET /api/analytics
 ```
 
-### Health
+Retrieve analytics and risk distribution information.
+
+---
+
+## Health
 
 ```http
 GET /actuator/health
 ```
 
----
-
-## 🔐 Security
-
-The application includes a Spring Security foundation with:
-
-- Stateless API configuration
-- CSRF configuration
-- CORS configuration
-- Restricted actuator endpoints
-- API endpoint authorization rules
-- JWT-ready security architecture
-
-The current college-demo version does not require a login flow.
+Check backend service health.
 
 ---
 
-## 🧠 Risk Scoring
+# 🧠 Explainable Risk Scoring
 
-The Internship Risk Analyzer uses an explainable rule-based scoring engine.
+InternShield AI uses a rule-based scoring approach.
 
-Different warning signals contribute different amounts to the overall risk score.
+Different suspicious indicators contribute different weights to the overall score.
 
 The final score is mapped to:
 
-| Score | Risk Level |
+| Score | Level |
 |---:|---|
 | 0–24 | LOW |
 | 25–44 | MEDIUM |
 | 45–69 | HIGH |
 | 70–100 | CRITICAL |
 
-The system also returns the specific indicators that influenced the result, making the decision easier for students to understand.
+Instead of only displaying a score, the system also identifies the **specific indicators that contributed to the risk assessment**.
 
-> InternShield AI is a decision-support tool and should not be treated as a definitive legal, cybersecurity, or employment verification service.
+This makes the result easier for students to understand.
 
 ---
 
-## 🧪 Example
+# 🧪 Functional Testing
 
-### Suspicious Internship
+The application was tested using multiple scenarios.
 
-Input:
+### Test 1 — Suspicious Internship
+
+Detected indicators included:
+
+- Registration fee
+- No interview
+- Public recruiter email
+
+**Result:** HIGH risk
+
+---
+
+### Test 2 — Legitimate Internship
+
+No major suspicious indicators detected.
+
+**Result:** LOW risk
+
+---
+
+### Test 3 — Extreme Scam
+
+Detected indicators included:
+
+- Security deposit
+- Guaranteed selection
+- Sensitive financial/authentication information
+- Public email
+
+**Result:** CRITICAL risk
+
+---
+
+### Test 4 — Suspicious URL
+
+Example:
 
 ```text
-Congratulations! You have been selected for an internship.
-Pay a registration fee to confirm your position.
-No interview required. Guaranteed placement.
-Contact us immediately on WhatsApp.
+http://secure-login-paypal.example.com/verify-account
 ```
 
-The system can identify multiple warning indicators and return a high or critical risk assessment with recommendations.
+Detected:
+
+- HTTP instead of HTTPS
+- Suspicious URL keywords
+
+**Result:** MEDIUM risk
 
 ---
 
-## 🌐 Deployment
+### Test 5 — Safe URL
 
-The application is deployed using Render.
+Example:
 
 ```text
-React Frontend
-      ↓
-Render Static Site
-      ↓
-Spring Boot REST API
-      ↓
-Render PostgreSQL
+https://www.google.com
 ```
 
-### Production URLs
+No major suspicious indicators detected.
 
-Frontend:
-
-https://internshield-frontend-ygy9.onrender.com
-
-Backend:
-
-https://internshield-ai-0pzs.onrender.com
-
-Health:
-
-https://internshield-ai-0pzs.onrender.com/actuator/health
+**Result:** LOW risk
 
 ---
 
-## 🎯 Project Objectives
+### Test 6 — Suspicious Company Verification
 
-- Help students recognize suspicious internship offers.
-- Explain why an offer may be risky instead of only displaying a score.
-- Detect common financial, communication, domain, and urgency-based scam indicators.
-- Provide URL and recruiter/company verification support.
-- Maintain analysis data for dashboard insights.
-- Provide a scalable Java full-stack foundation for future AI/ML integration.
+A company claiming to represent a major organization but using an unrelated public recruiter email.
+
+**Result:** NEEDS VERIFICATION
 
 ---
 
-## 🔮 Future Enhancements
+### Test 7 — Consistent Company Verification
+
+Company website and recruiter email domain matched.
+
+**Result:** VERIFIED
+
+---
+
+# 🔐 Security
+
+The application includes a Spring Security foundation with:
+
+- Stateless API configuration
+- CORS configuration
+- CSRF configuration
+- API endpoint authorization rules
+- Restricted actuator exposure
+- JWT-ready security architecture
+
+The current academic demonstration version does not require a login flow.
+
+---
+
+# 🎓 Project Objectives
+
+The main objectives of InternShield AI are to:
+
+- Help students identify suspicious internship offers.
+- Detect common internship scam indicators.
+- Explain why an offer may be risky.
+- Identify suspicious URLs.
+- Verify company and recruiter information.
+- Maintain analysis history.
+- Provide analytics about detected risks.
+- Demonstrate Java full-stack development.
+- Demonstrate REST API development.
+- Demonstrate database integration.
+- Demonstrate cloud deployment and containerization.
+
+---
+
+# 🔮 Future Enhancements
 
 Possible future improvements include:
 
 - AI/ML-based scam classification
-- PDF/image internship offer analysis
-- OCR-based document processing
+- PDF internship offer analysis
+- Image and OCR analysis
 - Browser extension
-- More advanced company verification
-- Real-time domain reputation checks
+- Advanced company verification
+- Real-time domain reputation checking
 - Email analysis
-- Redis caching and rate limiting
-- Feedback-based model improvement
+- External cybersecurity intelligence
+- Redis caching
+- Rate limiting
 - Admin dashboard
-- Advanced cybersecurity intelligence
+- Feedback-based model improvement
+- Automated threat intelligence integration
 
 ---
 
-## 👩‍💻 Project
+# ⚠️ Disclaimer
 
-**InternShield AI**
+InternShield AI provides automated risk indicators and safety recommendations based on information submitted by the user.
 
-A Java full-stack academic project focused on internship scam awareness and safety.
+The results **do not guarantee that an internship is genuine or fraudulent**.
 
-Built with:
+Users should independently verify companies, recruiters, websites, and internship offers through official channels before:
 
-**Java + Spring Boot + React + PostgreSQL + Docker + Render**
+- Making payments
+- Sharing identity documents
+- Sharing banking information
+- Sharing passwords or authentication codes
+- Accepting an internship offer
 
 ---
 
-## ⚠️ Disclaimer
+# 👩‍💻 Project Information
 
-InternShield AI provides automated risk indicators and safety recommendations based on the information submitted by the user. Results are not guaranteed to determine whether an internship is genuinely fraudulent. Users should independently verify organizations, recruiters, websites, and offers before making payments or sharing sensitive information.
+**Project:** InternShield AI
+
+**Type:** Java Full-Stack Academic Project
+
+**Focus:** Internship Scam Detection & Student Safety
+
+**Stack:**
+
+```text
+Java
+Spring Boot
+React
+Vite
+PostgreSQL
+Docker
+GitHub
+Render
+Vercel
+```
+
+---
+
+## 🌟 Live Project
+
+👉 **Try InternShield AI:**  
+https://intern-shield-ai-five.vercel.app/
+
+🛡️ **InternShield AI — helping students think twice before trusting a suspicious internship offer.**
