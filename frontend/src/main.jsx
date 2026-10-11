@@ -20,9 +20,8 @@ import {
 
 import "./styles.css";
 
-const API = "https://internshield-ai-0pzs.onrender.com/api";
-const HEALTH_API =
-  "https://internshield-ai-0pzs.onrender.com/actuator/health";
+const API = "https://internshield-ai-yhu1.onrender.com/api";
+const HEALTH_API = "https://internshield-ai-yhu1.onrender.com/actuator/health";
 
 /* =========================================================
    COMPANY VERIFICATION PAGE
