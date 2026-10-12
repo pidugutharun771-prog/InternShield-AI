@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/analytics")
-@CrossOrigin(origins = {"http://localhost:5173","https://internshield-frontend-ygy9.onrender.com"})
+@CrossOrigin(origins = {"http://localhost:5173","https://internshield-frontend-ygy9.onrender.com","https://intern-shield-ai-five.vercel.app"})
 public class AnalyticsController {
 
     private final AnalysisRepository analysisRepository;

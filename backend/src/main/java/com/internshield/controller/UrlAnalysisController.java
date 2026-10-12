@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/url")
-@CrossOrigin(origins = {"http://localhost:5173","https://internshield-frontend-ygy9.onrender.com"})
+@CrossOrigin(origins = {"http://localhost:5173","https://internshield-frontend-ygy9.onrender.com","https://intern-shield-ai-five.vercel.app"})
 public class UrlAnalysisController {
 
     private final UrlAnalysisService urlAnalysisService;
